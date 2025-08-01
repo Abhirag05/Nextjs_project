@@ -21,14 +21,7 @@ export async function POST(request){
         const product=await Product.findById(item.product);
         return  await acc+product.price*item.quantity;
        },0)
-       // ✅ Save order to MongoDB
-       await Order.create({
-       userId,
-        items,
-        amount:amount + Math.floor(amount*0.02),
-        address,
-        date: Date.now(),
-      });
+      
        await inngest.send({
         name:'order/created',
         data:{
