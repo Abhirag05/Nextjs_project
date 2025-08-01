@@ -9,7 +9,7 @@ export async function GET(request) {
         await connectDB()
         const {userId} = getAuth(request)
       
-        const user = await User.findOne({ clerkId: userId });
+        const user = await User.findById(userId);
         if(!user){
             return NextResponse.json({success:false,message :"User Not Found"})
         }
