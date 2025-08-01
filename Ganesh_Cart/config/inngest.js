@@ -19,6 +19,7 @@ export const syncUserCreation=inngest.createFunction(
                 const {id,first_name,last_name,email_addresses,image_url}=event.data
                 const userData={
                     _id:id,
+                    clerkId:id,
                     name:first_name + ' ' +last_name,
                     email:email_addresses[0].email_address,
                     imageUrl:image_url
@@ -28,7 +29,7 @@ export const syncUserCreation=inngest.createFunction(
             }
 )
 
-//Inngest funtion to update user dat in database
+//Inngest funtion to update user data in database
 
 export const syncUserUpdation=inngest.createFunction(
     {
