@@ -54,6 +54,7 @@ import feature2 from "./feature2.png";
 import feature3 from "./feature3.png";
 import banner1 from "./banner1.jpg";
 import banner2 from "./banner2.png";
+import ganesh_spare_parts from "./ganesh_spare_parts.jpg";
 export const assets = {
   logo,
   search_icon,
@@ -111,6 +112,7 @@ export const assets = {
   feature3,
   banner1,
   banner2,
+  ganesh_spare_parts,
 };
 
 export const BagIcon = () => {
