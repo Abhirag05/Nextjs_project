@@ -46,6 +46,23 @@ const ProductList = () => {
     }
     
   }, [user])
+  const handleDelete = async (productId) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+    try {
+      const res = await fetch(`/api/product/${productId}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setProducts(products.filter((p) => p._id !== productId));
+        toast.success("Product deleted successfully!");
+      } else {
+        toast.error(data.message || 'Failed to delete product');
+      }
+    } catch (error) {
+      toast.error('An error occurred while deleting the product.');
+    }
+  };
 
   return (
     <div className="flex-1 min-h-screen flex flex-col justify-between">
@@ -90,6 +107,14 @@ const ProductList = () => {
                         src={assets.redirect_icon}
                         alt="redirect_icon"
                       />
+                    </button>
+                  </td>
+                  <td className="px-4 py-3 max-sm:hidden">
+                    <button
+                      onClick={() => handleDelete(product._id)}
+                      className="text-red-600 hover:underline"
+                    >
+                      Delete
                     </button>
                   </td>
                 </tr>

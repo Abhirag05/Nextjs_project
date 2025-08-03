@@ -9,7 +9,13 @@ const Navbar = () => {
 
   return (
     <div className='flex items-center px-4 md:px-8 py-3 justify-between border-b'>
-      <Image onClick={()=>router.push('/')} className='w-28 lg:w-32 cursor-pointer' src={assets.logo} alt="" />
+      <span
+        className="cursor-pointer select-none text-2xl md:text-3xl font-bold text-[#212936]"
+        onClick={() => router.push('/')}
+        style={{ fontFamily: 'inherit', letterSpacing: '0.01em' }}
+      >
+        <span className="text-[#B71C1C]">Ganesh</span>Cart
+      </span>
       <button className='bg-gray-600 text-white px-5 py-2 sm:px-7 sm:py-2 rounded-full text-xs sm:text-sm'>Logout</button>
     </div>
   )

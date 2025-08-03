@@ -126,7 +126,7 @@ export default function AboutUs() {
         {/* FAQ Section */}
         <section className="max-w-3xl mx-auto">
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-orange-700 mt-2">Frequently Asked Questions</h2>
+            <h2 className="text-3xl font-bold text-orange-600 mt-2">Frequently Asked Questions</h2>
           </div>
           <FAQ />
         </section>
