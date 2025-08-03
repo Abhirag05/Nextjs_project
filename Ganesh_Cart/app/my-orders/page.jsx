@@ -55,10 +55,17 @@ const MyOrders = () => {
                                         alt="box_icon"
                                     />
                                     <p className="flex flex-col gap-3">
-                                        <span className="font-medium text-base">
-                                            {order.items.map((item) => item.product.name + ` x ${item.quantity}`).join(", ")}
-                                        </span>
-                                        <span>Items : {order.items.length}</span>
+                                    <span className="font-medium">
+                                        {order.items
+                                            .map((item) =>
+                                                item.product
+                                                ? `${item.product.name} x ${item.quantity}`
+                                                : `Unknown Product x ${item.quantity}`
+                                            )
+                                            .join(", ")
+                                            }
+                                     </span>
+                                    <span>Items : {order.items.length}</span>
                                     </p>
                                 </div>
                                 <div>
