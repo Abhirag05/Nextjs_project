@@ -65,7 +65,7 @@ const MyOrders = () => {
                                             .join(", ")
                                             }
                                      </span>
-                                    
+                                     <span>Items : {order.items.length}</span>
                                     </p>
                                 </div>
                                 <div>
