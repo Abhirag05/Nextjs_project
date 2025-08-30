@@ -11,7 +11,7 @@ const AllProducts = () => {
     return (
         <>
             <Navbar />
-            <div className="flex flex-col items-start px-6 md:px-16 lg:px-32">
+            <div className="flex flex-col items-start px-6 md:px-16 lg:px-32 pt-20">
                 <div className="flex flex-col items-end pt-12">
                     <p className="text-2xl font-medium">
                         {searchQuery ? `Search results for "${searchQuery}"` : "All products"}

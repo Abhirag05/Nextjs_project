@@ -23,7 +23,7 @@ const Wishlist = () => {
         return (
             <>
                 <Navbar />
-                <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 md:px-16 lg:px-32">
+                <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 md:px-16 lg:px-32 pt-20">
                     <div className="text-center">
                         <h1 className="text-2xl font-medium mb-4">Please Login</h1>
                         <p className="text-gray-600">You need to be logged in to view your wishlist.</p>
@@ -37,7 +37,7 @@ const Wishlist = () => {
     return (
         <>
             <Navbar />
-            <div className="flex flex-col items-start px-6 md:px-16 lg:px-32">
+            <div className="flex flex-col items-start px-6 md:px-16 lg:px-32 pt-20">
                 <div className="flex flex-col items-end pt-12">
                     <p className="text-2xl font-medium">My Wishlist</p>
                     <div className="w-16 h-0.5 bg-orange-600 rounded-full"></div>

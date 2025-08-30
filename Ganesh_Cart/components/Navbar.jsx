@@ -20,7 +20,7 @@ const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
 
   return (
-    <nav className="flex items-center justify-between px-6 md:px-16 lg:px-32 py-3 border-b border-gray-300 text-gray-700">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white flex items-center justify-between px-6 md:px-16 lg:px-32 py-3 border-b border-gray-300 text-gray-700 shadow-sm">
       <span
         className="cursor-pointer select-none text-2xl md:text-3xl font-bold text-[#212936]"
         onClick={() => router.push('/')}
@@ -118,24 +118,24 @@ const Navbar = () => {
       </ul>
 
       {/* Mobile Navigation Section */}
-      <div className="flex items-center md:hidden gap-3">
-        {/* Mobile Search Functionality - Compact search input for mobile screens */}
+      <div className="flex items-center md:hidden gap-2">
+        {/* Mobile Search Functionality - Responsive search input for mobile screens */}
         <div className="relative flex items-center">
           {isSearchOpen ? (
-            <div className="flex items-center bg-gray-100 rounded-full px-3 py-1">
+            <div className="flex items-center bg-gray-100 rounded-full px-3 py-2">
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="bg-transparent outline-none text-sm w-36"
+                className="bg-transparent outline-none text-sm w-32"
                 autoFocus
                 onBlur={() => {
                   if (!searchQuery) setIsSearchOpen(false)
                 }}
               />
               <Image 
-                className="w-4 h-4 ml-2 cursor-pointer" 
+                className="w-4 h-4 ml-2 cursor-pointer flex-shrink-0" 
                 src={assets.search_icon} 
                 alt="search icon"
                 onClick={() => {
@@ -147,15 +147,15 @@ const Navbar = () => {
             </div>
           ) : (
             <Image 
-              className="w-4 h-4 cursor-pointer" 
+              className="w-5 h-5 cursor-pointer" 
               src={assets.search_icon} 
               alt="search icon"
               onClick={() => setIsSearchOpen(true)}
             />
           )}
         </div>
-        {isSeller && <button onClick={() => router.push('/seller')} className="text-xs border px-4 py-1.5 rounded-full">Seller Dashboard</button>}
-        { user
+        {!isSearchOpen && isSeller && <button onClick={() => router.push('/seller')} className="text-xs border px-2 py-1.5 rounded-full whitespace-nowrap flex-shrink-0">Seller</button>}
+        {!isSearchOpen && ( user
          ? <> <UserButton>
           <UserButton.MenuItems>
                 <UserButton.Action label="Home" labelIcon={<HomeIcon/>} onClick={()=>router.push('/')}/>
@@ -178,7 +178,7 @@ const Navbar = () => {
          : <button onClick={openSignIn} className="flex items-center gap-2 hover:text-gray-900 transition">
           <Image src={assets.user_icon} alt="user icon" />
           Account
-        </button>}
+        </button>)}
       </div>
     </nav>
   );
