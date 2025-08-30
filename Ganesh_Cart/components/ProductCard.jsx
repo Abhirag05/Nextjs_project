@@ -3,9 +3,15 @@ import { assets } from '@/assets/assets'
 import Image from 'next/image';
 import { useAppContext } from '@/context/AppContext';
 
+/**
+ * ProductCard Component
+ * Displays individual product information with interactive wishlist and buy functionality
+ * Features: Product image, details, ratings, wishlist toggle, and buy now button
+ */
 const ProductCard = ({ product }) => {
 
-    const { currency, router } = useAppContext()
+    // Extract required functions and state from AppContext
+    const { currency, router, buyNow, toggleWishlist, isInWishlist } = useAppContext()
 
     return (
         <div
@@ -20,11 +26,30 @@ const ProductCard = ({ product }) => {
                     width={800}
                     height={800}
                 />
-                <button className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md">
+                {/* Wishlist Toggle Button - Interactive heart icon with visual feedback */}
+                <button 
+                    onClick={(e) => {
+                        // Prevent card click event from triggering when heart is clicked
+                        e.stopPropagation();
+                        // Toggle wishlist status with database persistence
+                        toggleWishlist(product._id);
+                    }}
+                    className={`absolute top-2 right-2 p-2 rounded-full shadow-md transition ${
+                        isInWishlist(product._id) 
+                            ? 'bg-red-500 text-white' // Red background when in wishlist
+                            : 'bg-white text-gray-600 hover:bg-gray-50' // White background when not in wishlist
+                    }`}
+                >
                     <Image
                         className="h-3 w-3"
                         src={assets.heart_icon}
-                        alt="heart_icon"
+                        alt="wishlist toggle"
+                        style={{
+                            // Invert colors when item is in wishlist for better contrast
+                            filter: isInWishlist(product._id) 
+                                ? 'brightness(0) invert(1)' 
+                                : 'none'
+                        }}
                     />
                 </button>
             </div>
@@ -51,7 +76,13 @@ const ProductCard = ({ product }) => {
 
             <div className="flex items-end justify-between w-full mt-1">
                 <p className="text-base font-medium">{currency}{product.offerPrice}</p>
-                <button className=" max-sm:hidden px-4 py-1.5 text-gray-500 border border-gray-500/20 rounded-full text-xs hover:bg-slate-50 transition">
+                <button 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        buyNow(product._id);
+                    }}
+                    className=" max-sm:hidden px-4 py-1.5 text-gray-500 border border-gray-500/20 rounded-full text-xs hover:bg-slate-50 transition"
+                >
                     Buy now
                 </button>
             </div>

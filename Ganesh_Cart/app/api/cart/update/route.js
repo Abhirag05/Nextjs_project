@@ -13,6 +13,10 @@ export async function POST(request) {
         await connectDB()
         const user = await User.findOne({ clerkId: userId });
         
+        if (!user) {
+            return NextResponse.json({success:false,message:"User Not Found"})
+        }
+        
         user.cartItems = cartData
         
         await user.save()
