@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect } from "react";
 import { assets } from "@/assets/assets";
 import Image from "next/image";
@@ -71,7 +72,13 @@ const HeaderSlider = () => {
                 <Link href="/all-products">
                   <button className="group flex items-center gap-2 px-6 py-2.5 font-medium">
                     {slide.buttonText2}
-                    <Image className="group-hover:translate-x-1 transition" src={assets.arrow_icon} alt="arrow_icon" />
+                    <Image 
+                      className="group-hover:translate-x-1 transition" 
+                      src={assets.arrow_icon} 
+                      alt="arrow_icon"
+                      width={16}
+                      height={16}
+                    />
                   </button>
                 </Link>
               </div>
@@ -81,6 +88,11 @@ const HeaderSlider = () => {
                 className="md:w-72 w-48"
                 src={slide.imgSrc}
                 alt={`Slide ${index + 1}`}
+                width={288}
+                height={288}
+                priority={index === 0}
+                loading={index === 0 ? undefined : "lazy"}
+                sizes="(max-width: 768px) 192px, 288px"
               />
             </div>
           </div>

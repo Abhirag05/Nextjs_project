@@ -23,8 +23,10 @@ const ProductCard = ({ product }) => {
                     src={product.image[0]}
                     alt={product.name}
                     className="group-hover:scale-105 transition object-cover w-4/5 h-4/5 md:w-full md:h-full"
-                    width={800}
-                    height={800}
+                    width={200}
+                    height={200}
+                    loading="lazy"
+                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
                 />
                 {/* Wishlist Toggle Button - Interactive heart icon with visual feedback */}
                 <button 
@@ -44,6 +46,8 @@ const ProductCard = ({ product }) => {
                         className="h-3 w-3"
                         src={assets.heart_icon}
                         alt="wishlist toggle"
+                        width={12}
+                        height={12}
                         style={{
                             // Invert colors when item is in wishlist for better contrast
                             filter: isInWishlist(product._id) 
@@ -69,6 +73,8 @@ const ProductCard = ({ product }) => {
                                     : assets.star_dull_icon
                             }
                             alt="star_icon"
+                            width={12}
+                            height={12}
                         />
                     ))}
                 </div>

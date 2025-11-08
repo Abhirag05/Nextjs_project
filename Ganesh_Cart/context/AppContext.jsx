@@ -3,14 +3,24 @@ import { productsDummyData, userDummyData } from "@/assets/assets";
 import { useAuth, useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import toast from "react-hot-toast";
+import useSWR from 'swr';
 
 export const AppContext = createContext();
 
 export const useAppContext = () => {
     return useContext(AppContext)
 }
+
+// Debounce utility function
+const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), delay);
+    };
+};
 
 export const AppContextProvider = (props) => {
 
@@ -35,9 +45,46 @@ export const AppContextProvider = (props) => {
     const [searchQuery, setSearchQuery] = useState('')
     const [filteredProducts, setFilteredProducts] = useState([])
 
+    // SWR fetcher function with auth
+    const fetcherWithAuth = async (url) => {
+        const token = await getToken();
+        const { data } = await axios.get(url, { 
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true 
+        });
+        return data;
+    };
+
+    // Use SWR for user data with caching
+    const { data: userDataResponse, mutate: mutateUserData } = useSWR(
+        user ? '/api/inngest/user/data' : null,
+        fetcherWithAuth,
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            dedupingInterval: 60000, // 1 minute
+        }
+    );
+
+    // Update local state when SWR data changes
+    useEffect(() => {
+        if (userDataResponse?.success) {
+            setUserData(userDataResponse.user);
+            setCartItems(userDataResponse.user.cartItems || {});
+            setWishlistItems(userDataResponse.user.wishlistItems || []);
+        }
+    }, [userDataResponse]);
+
+    // Check seller status
+    useEffect(() => {
+        if (user?.publicMetadata?.role === 'seller') {
+            setIsSeller(true);
+        }
+    }, [user]);
+
     const fetchProductData = async () => {
         try{
-            const {data} = await axios.get('/api/product/add/list')
+            const {data} = await axios.get('/api/product/add/list?limit=50')
 
             if(data.success){
                 setProducts(data.products)
@@ -47,37 +94,28 @@ export const AppContextProvider = (props) => {
             }
 
         }catch(error){
-            toast.error(error.message)
+            console.error('Failed to fetch products:', error);
         }
     }
 
     const fetchUserData = async () => {
-        try{
-
-             if(user.publicMetadata.role==='seller'){
-                     setIsSeller(true);
-                 }
-
-        const token = await getToken();
-
-        const {data} = await axios.get('/api/inngest/user/data',{ headers :{Authorization : `Bearer ${token}`},
-        withCredentials: true })
-
-        if(data.success){
-            setUserData(data.user)
-            setCartItems(data.user.cartItems)
-            // Initialize wishlist from user data or empty array if none exists
-            setWishlistItems(data.user.wishlistItems || [])
-        }else{
-            toast.error(data.message)
-        }
-
-        }catch(error){
-            toast.error(error.message)  
-        }
-
-       
+        // This is now handled by SWR, but keeping for backwards compatibility
+        mutateUserData();
     }
+
+    // Debounced cart update function
+    const debouncedCartUpdate = useRef(
+        debounce(async (cartData, token) => {
+            try {
+                await axios.post('/api/cart/update', { cartData }, { 
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+            } catch (error) {
+                console.error('Cart sync failed:', error);
+                toast.error("Failed to sync cart");
+            }
+        }, 1000)
+    ).current;
 
     const addToCart = async (itemId) => {
         // Check if user is logged in
@@ -86,6 +124,7 @@ export const AppContextProvider = (props) => {
             return;
         }
 
+        // Optimistic update - update UI immediately
         let cartData = structuredClone(cartItems);
         if (cartData[itemId]) {
             cartData[itemId] += 1;
@@ -94,40 +133,39 @@ export const AppContextProvider = (props) => {
             cartData[itemId] = 1;
         }
         setCartItems(cartData);
+        toast.success("Item added to cart");
         
-        try{
-            const token = await getToken()
-
-            await axios.post('/api/cart/update',{cartData},{ headers :{Authorization : `Bearer ${token}`},
-             })
-          toast.success("Item added to cart")
-        }catch(error){
-            toast.error(error.message)
+        // Sync with backend (debounced)
+        try {
+            const token = await getToken();
+            debouncedCartUpdate(cartData, token);
+        } catch (error) {
+            console.error('Failed to sync cart:', error);
         }
     }
 
     const updateCartQuantity = async (itemId, quantity) => {
-
+        // Optimistic update
         let cartData = structuredClone(cartItems);
-        if (quantity <=0) {
+        if (quantity <= 0) {
             delete cartData[itemId];
         } else {
             cartData[itemId] = quantity;
         }
-        setCartItems(cartData)
-        if(user){
-            try{
-                const token = await getToken()
-
-                await axios.post('/api/cart/update',{cartData},{ headers :{Authorization : `Bearer ${token}`},
-                 })
-              toast.success("Cart Updated")
-            }catch(error){
-                toast.error(error.message)
+        setCartItems(cartData);
+        
+        if (user) {
+            try {
+                const token = await getToken();
+                // Immediate update for cart page
+                await axios.post('/api/cart/update', { cartData }, { 
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                toast.success("Cart updated");
+            } catch (error) {
+                toast.error(error.message);
             }
-           
         }
-
     }
 
     const buyNow = async (itemId) => {
@@ -224,15 +262,11 @@ export const AppContextProvider = (props) => {
     }
 
     useEffect(() => {
-        fetchProductData()
-    }, [])
-
-    useEffect(() => {
-        if(user){
-            fetchUserData()
+        // Only fetch products once on mount if not already loaded
+        if (products.length === 0) {
+            fetchProductData();
         }
-        
-    }, [user])
+    }, []);
 
     // Context value object - all functions and state available to components
     const value = {

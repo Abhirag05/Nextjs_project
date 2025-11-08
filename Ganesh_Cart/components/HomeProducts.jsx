@@ -1,13 +1,17 @@
+"use client"
 import React from "react";
 import ProductCard from "./ProductCard";
 import { useAppContext } from "@/context/AppContext";
 
-const HomeProducts = () => {
+const HomeProducts = ({ initialProducts = [] }) => {
 
   const { products, filteredProducts, searchQuery, router } = useAppContext()
 
+  // Use context products if available, otherwise use server-provided initial products
+  const contextProducts = products.length > 0 ? products : initialProducts;
+  
   // Show search results when searching, otherwise show popular products
-  const displayProducts = searchQuery ? filteredProducts : products;
+  const displayProducts = searchQuery ? filteredProducts : contextProducts;
   const sectionTitle = searchQuery ? `Search results for "${searchQuery}"` : "Popular products";
 
   return (
@@ -20,17 +24,19 @@ const HomeProducts = () => {
       )}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 flex-col items-center gap-6 mt-6 pb-14 w-full">
         {displayProducts.length > 0 ? (
-          displayProducts.map((product, index) => <ProductCard key={index} product={product} />)
+          displayProducts.map((product, index) => <ProductCard key={product._id || index} product={product} />)
         ) : searchQuery ? (
           <div className="col-span-full text-center py-12 text-gray-500">
             <p className="text-lg">No products found matching "{searchQuery}"</p>
             <p className="text-sm mt-2">Try searching with different keywords</p>
           </div>
         ) : (
-          products.map((product, index) => <ProductCard key={index} product={product} />)
+          <div className="col-span-full text-center py-12 text-gray-500">
+            <p className="text-lg">No products available</p>
+          </div>
         )}
       </div>
-      {!searchQuery && (
+      {!searchQuery && displayProducts.length > 0 && (
         <button onClick={() => { router.push('/all-products') }} className="px-12 py-2.5 border rounded text-gray-500/70 hover:bg-slate-50/90 transition">
           See more
         </button>
